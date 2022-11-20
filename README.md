@@ -61,11 +61,11 @@ The database seed script creates a new user with some data you can use to get st
 
 ### Relevant code:
 
-This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
+This is a pretty simple workouts-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting workouts.
 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
+- creating, and deleting workouts [./app/models/workouts.server.ts](./app/models/workouts.server.ts)
 
 ## Deployment
 
@@ -81,16 +81,16 @@ Prior to your first deployment, you'll need to do a few things:
   fly auth signup
   ```
 
-  > **Note:** If you have more than one Fly account, ensure that you are signed into the same account in the Fly CLI as you are in the browser. In your terminal, run `fly auth whoami` and ensure the email matches the Fly account signed into the browser.
+  > **Workout:** If you have more than one Fly account, ensure that you are signed into the same account in the Fly CLI as you are in the browser. In your terminal, run `fly auth whoami` and ensure the email matches the Fly account signed into the browser.
 
 - Create two apps on Fly, one for staging and one for production:
 
   ```sh
-  fly apps create blog-tutorial-6be7
-  fly apps create blog-tutorial-6be7-staging
+  fly apps create remix-demo
+  fly apps create remix-demo-staging
   ```
 
-  > **Note:** Make sure this name matches the `app` set in your `fly.toml` file. Otherwise, you will not be able to deploy.
+  > **Workout:** Make sure this name matches the `app` set in your `fly.toml` file. Otherwise, you will not be able to deploy.
 
   - Initialize Git.
 
@@ -109,8 +109,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 
   ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app blog-tutorial-6be7
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app blog-tutorial-6be7-staging
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app remix-demo
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app remix-demo-staging
   ```
 
   If you don't have openssl installed, you can also use [1password](https://1password.com/password-generator/) to generate a random secret, just replace `$(openssl rand -hex 32)` with the generated secret.
@@ -118,8 +118,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Create a persistent volume for the sqlite database for both your staging and production environments. Run the following:
 
   ```sh
-  fly volumes create data --size 1 --app blog-tutorial-6be7
-  fly volumes create data --size 1 --app blog-tutorial-6be7-staging
+  fly volumes create data --size 1 --app remix-demo
+  fly volumes create data --size 1 --app remix-demo-staging
   ```
 
 Now that everything is set up you can commit and push your changes to your repo. Every commit to your `main` branch will trigger a deployment to your production environment, and every commit to your `dev` branch will trigger a deployment to your staging environment.
@@ -149,7 +149,7 @@ To run these tests in development, run `npm run test:e2e:dev` which will start t
 We have a utility for testing authenticated features without having to go through the login flow:
 
 ```ts
-cy.login();
+cy.login()
 // you are now logged in as a new user
 ```
 
@@ -157,8 +157,8 @@ We also have a utility to auto-delete the user at the end of your test. Just mak
 
 ```ts
 afterEach(() => {
-  cy.cleanupUser();
-});
+  cy.cleanupUser()
+})
 ```
 
 That way, we can keep your local db clean and keep your tests isolated from one another.

@@ -1,4 +1,4 @@
-app = "blog-tutorial-6be7"
+app = "max-wellness"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = [ ]

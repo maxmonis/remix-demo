@@ -1,68 +1,59 @@
-import type { ActionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import * as React from "react";
+import type { ActionArgs } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
+import { Form, useActionData } from "@remix-run/react"
+import * as React from "react"
 
-import { createNote } from "~/models/note.server";
-import { requireUserId } from "~/session.server";
+import { createWorkout } from "~/models/workout.server"
+import { requireUserId } from "~/session.server"
+import { isString } from "~/utils/validators"
 
 export async function action({ request }: ActionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request)
 
-  const formData = await request.formData();
-  const title = formData.get("title");
-  const body = formData.get("body");
+  const formData = await request.formData()
+  const title = formData.get("title")
+  const body = formData.get("body")
 
-  if (typeof title !== "string" || title.length === 0) {
+  if (!isString(title)) {
     return json(
       { errors: { title: "Title is required", body: null } },
-      { status: 400 }
-    );
-  }
-
-  if (typeof body !== "string" || body.length === 0) {
+      { status: 400 },
+    )
+  } else if (!isString(body)) {
     return json(
       { errors: { title: null, body: "Body is required" } },
-      { status: 400 }
-    );
+      { status: 400 },
+    )
   }
 
-  const note = await createNote({ title, body, userId });
+  const workouts = await createWorkout({ title, body, userId })
 
-  return redirect(`/notes/${note.id}`);
+  return redirect(`/workouts/${workouts.id}`)
 }
 
-export default function NewNotePage() {
-  const actionData = useActionData<typeof action>();
-  const titleRef = React.useRef<HTMLInputElement>(null);
-  const bodyRef = React.useRef<HTMLTextAreaElement>(null);
+export default function NewWorkoutPage() {
+  const actionData = useActionData<typeof action>()
+  const titleRef = React.useRef<HTMLInputElement>(null)
+  const bodyRef = React.useRef<HTMLTextAreaElement>(null)
 
   React.useEffect(() => {
     if (actionData?.errors?.title) {
-      titleRef.current?.focus();
+      titleRef.current?.focus()
     } else if (actionData?.errors?.body) {
-      bodyRef.current?.focus();
+      bodyRef.current?.focus()
     }
-  }, [actionData]);
+  }, [actionData])
 
   return (
-    <Form
-      method="post"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        width: "100%",
-      }}
-    >
+    <Form method="post" className="flex flex-col gap-2">
       <div>
-        <label className="flex w-full flex-col gap-1">
+        <label className="flex flex-1 flex-col gap-1">
           <span>Title: </span>
           <input
             ref={titleRef}
             name="title"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.title ? true : undefined}
+            aria-invalid={Boolean(actionData?.errors?.title)}
             aria-errormessage={
               actionData?.errors?.title ? "title-error" : undefined
             }
@@ -76,7 +67,7 @@ export default function NewNotePage() {
       </div>
 
       <div>
-        <label className="flex w-full flex-col gap-1">
+        <label className="flex flex-1 flex-col gap-1">
           <span>Body: </span>
           <textarea
             ref={bodyRef}
@@ -105,5 +96,5 @@ export default function NewNotePage() {
         </button>
       </div>
     </Form>
-  );
+  )
 }
